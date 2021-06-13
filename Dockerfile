@@ -9,62 +9,28 @@ RUN apk update && \
 ENTRYPOINT ["sh", "-o", "pipefail", "-c"]
 
 
-# Version Checkers
-FROM build-base AS latest-kubectl-version
-
-CMD [ \
-    "curl -fs https://storage.googleapis.com/kubernetes-release/release/stable.txt | \
-    sed -e 's/\\v\\(.*\\)$/\\1/'" \
-]
-
-
-FROM build-base AS latest-kustomize-release
-
-WORKDIR /tmp
-
-RUN curl -fs https://api.github.com/repos/kubernetes-sigs/kustomize/releases > .kustomize-latest-release
-
-
-FROM latest-kustomize-release AS latest-kustomize-version
-
-CMD [ \
-    "cat .kustomize-latest-release | \
-    jq -r 'first(.[] | select(.name | startswith(\"kustomize/\"))) | .name' | \
-    sed -e 's/\\kustomize\\/v\\(.*\\)$/\\1/'" \
-]
-
-
-FROM latest-kustomize-release AS latest-kustomize-download-url
-
-CMD [ \
-    "cat .kustomize-latest-release | \
-    jq -r 'first(.[] | select(.name | startswith(\"kustomize/\"))) | \
-    first(.assets[] | select((.name | contains(\"linux\")) and (.name | contains(\"amd64\")))) | .browser_download_url'" \
-]
-
-
 # Downloader
 FROM build-base AS downloader
 
-ARG KUBECTL_VERSION
-ARG KUSTOMIZE_DOWNLOAD_URL
-
 WORKDIR /downloads
 
-RUN curl -fL https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl -o kubectl && \
+RUN curl -fL https://dl.k8s.io/release/v1.21.0/bin/linux/amd64/kubectl -o kubectl && \
     chmod +x kubectl
 
-RUN curl -fL ${KUSTOMIZE_DOWNLOAD_URL} | tar xz && \
+RUN curl -fL https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64 -o kustomize && \
     chmod +x kustomize
 
-
+RUN curl -fL https://github.com/digitalocean/doctl/releases/download/v1.61.0/doctl-1.61.0-linux-amd64.tar.gz | tar -xzv && \
+    chmod +x doctl
+ 
 # Runtime
 FROM base AS runtime
 
-LABEL maintainer="LINE Open Source <dl_oss_dev@linecorp.com>"
+LABEL maintainer="David Arena <david.andrew.arena@gmail.com>"
 
 COPY --from=downloader /downloads/kubectl /usr/local/bin/kubectl
 COPY --from=downloader /downloads/kustomize /usr/local/bin/kustomize
+COPY --from=downloader /downloads/doctl /usr/local/bin/doctl
 
 RUN curl -sL https://github.com/digitalocean/doctl/releases/download/v1.61.0/doctl-1.61.0-linux-amd64.tar.gz | tar -xzv && \
     chmod +x doctl && \
