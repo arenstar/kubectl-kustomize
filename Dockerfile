@@ -32,8 +32,4 @@ COPY --from=downloader /downloads/kubectl /usr/local/bin/kubectl
 COPY --from=downloader /downloads/kustomize /usr/local/bin/kustomize
 COPY --from=downloader /downloads/doctl /usr/local/bin/doctl
 
-RUN curl -sL https://github.com/digitalocean/doctl/releases/download/v1.61.0/doctl-1.61.0-linux-amd64.tar.gz | tar -xzv && \
-    chmod +x doctl && \
-    mv ./doctl /usr/local/bin/doctl
-
 ENTRYPOINT ["sh"]
