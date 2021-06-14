@@ -31,7 +31,4 @@ COPY --from=downloader /downloads/kubectl /usr/local/bin/kubectl
 COPY --from=downloader /downloads/kustomize /usr/local/bin/kustomize
 COPY --from=downloader /downloads/doctl /usr/local/bin/doctl
 
-RUN apk add --update \
-    bash
-
-ENTRYPOINT ["bash"]
+ENTRYPOINT ["sh", "-o", "pipefail", "-c"]
