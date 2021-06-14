@@ -4,6 +4,7 @@ FROM base AS build-base
 RUN apk update && \
     apk add \
     curl \
+    bash \
     jq
 
 ENTRYPOINT ["sh", "-o", "pipefail", "-c"]
@@ -32,4 +33,4 @@ COPY --from=downloader /downloads/kubectl /usr/local/bin/kubectl
 COPY --from=downloader /downloads/kustomize /usr/local/bin/kustomize
 COPY --from=downloader /downloads/doctl /usr/local/bin/doctl
 
-ENTRYPOINT ["ash"]
+ENTRYPOINT ["bash"]
