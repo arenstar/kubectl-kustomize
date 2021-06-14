@@ -1,10 +1,8 @@
 FROM alpine:3.13.5 AS base
 FROM base AS build-base
 
-RUN apk update && \
-    apk add \
+RUN apk add --update \
     curl \
-    bash \
     jq
 
 ENTRYPOINT ["sh", "-o", "pipefail", "-c"]
@@ -32,5 +30,8 @@ LABEL maintainer="David Arena <david.andrew.arena@gmail.com>"
 COPY --from=downloader /downloads/kubectl /usr/local/bin/kubectl
 COPY --from=downloader /downloads/kustomize /usr/local/bin/kustomize
 COPY --from=downloader /downloads/doctl /usr/local/bin/doctl
+
+RUN apk add --update \
+    bash
 
 ENTRYPOINT ["bash"]
