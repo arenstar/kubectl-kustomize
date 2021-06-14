@@ -32,4 +32,4 @@ COPY --from=downloader /downloads/kubectl /usr/local/bin/kubectl
 COPY --from=downloader /downloads/kustomize /usr/local/bin/kustomize
 COPY --from=downloader /downloads/doctl /usr/local/bin/doctl
 
-ENTRYPOINT ["sh"]
+ENTRYPOINT ["ash"]
